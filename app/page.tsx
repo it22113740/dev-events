@@ -27,23 +27,23 @@ const page = async () => {
   
   let events: IEvent[] = [];
   
-  // try {
-  //   const BASE_URL = normalizeUrl(process.env.NEXT_PUBLIC_BASE_URL);
-  //   const response = await fetch(`${BASE_URL}/api/events`, {
-  //     next: { revalidate: 3600 }
-  //   });
+  try {
+    const BASE_URL = normalizeUrl(process.env.NEXT_PUBLIC_BASE_URL);
+    const response = await fetch(`${BASE_URL}/api/events`, {
+      next: { revalidate: 3600 }
+    });
     
-  //   if (response.ok) {
-  //     const data = await response.json();
-  //     events = data.events || [];
-  //   } else {
-  //     console.error(`Failed to fetch events: ${response.status}`);
-  //     events = fallbackEvents as IEvent[];
-  //   }
-  // } catch (error) {
-  //   console.error('Error fetching events:', error);
-  //   events = fallbackEvents as IEvent[];
-  // }
+    if (response.ok) {
+      const data = await response.json();
+      events = data.events || [];
+    } else {
+      console.error(`Failed to fetch events: ${response.status}`);
+      events = fallbackEvents as IEvent[];
+    }
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    events = fallbackEvents as IEvent[];
+  }
   
   return (
     <section>
