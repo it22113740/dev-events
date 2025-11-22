@@ -190,9 +190,26 @@ function normalizeTime(time: string): string {
     const timeMatch = trimmedTime.match(/(\d{1,2}):(\d{2})(?::\d{2})?(?:\s*(AM|PM))?/i);
     if (timeMatch) {
       let hours = parseInt(timeMatch[1], 10);
-      const minutes = timeMatch[2];
+      const minutes = parseInt(timeMatch[2], 10);
       const ampm = timeMatch[3];
       
+      // Validate initial hours range (1-12 for AM/PM, 0-23 for 24-hour)
+      if (ampm) {
+        if (hours < 1 || hours > 12) {
+          throw new Error('Invalid hours for AM/PM format');
+        }
+      } else {
+        if (hours < 0 || hours > 23) {
+          throw new Error('Invalid hours for 24-hour format');
+        }
+      }
+      
+      // Validate minutes range
+      if (minutes < 0 || minutes > 59) {
+        throw new Error('Invalid minutes range');
+      }
+      
+      // Adjust hours for AM/PM conversion
       if (ampm) {
         if (ampm.toUpperCase() === 'PM' && hours !== 12) {
           hours += 12;
@@ -201,7 +218,13 @@ function normalizeTime(time: string): string {
         }
       }
       
-      return `${hours.toString().padStart(2, '0')}:${minutes}`;
+      // Validate final hours range after AM/PM conversion
+      if (hours < 0 || hours > 23) {
+        throw new Error('Invalid hours after AM/PM conversion');
+      }
+      
+      // Return formatted string with validated values
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     }
   } catch {
     // Fall through to error
