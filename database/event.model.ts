@@ -163,19 +163,11 @@ function generateSlug(title: string): string {
  * Accepts various date formats and converts to ISO
  */
 function normalizeDate(date: string): string {
-  try {
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) {
-      throw new Error('Invalid date format');
-    }
+  const dateObj = new Date(date);
+  if (!isNaN(dateObj.getTime())) {
     return dateObj.toISOString().split('T')[0]; // Extract YYYY-MM-DD part
-  } catch {
-    // If parsing fails, return original if already in YYYY-MM-DD format
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return date;
-    }
-    throw new Error(`Invalid date format: ${date}. Expected ISO format (YYYY-MM-DD)`);
   }
+  throw new Error(`Invalid date format: ${date}. Expected ISO format (YYYY-MM-DD)`);
 }
 
 /**
