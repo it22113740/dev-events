@@ -4,7 +4,6 @@ import BookEvent from "@/components/BookEvent";
 import { IEvent } from "@/database/event.model";
 import { getSimilerEventsBySlug } from "@/lib/actions/event.actions";
 import EventCard from "@/components/EventCard";
-import { cacheLife } from "next/cache";
 
 /**
  * Normalize URL to ensure it has a protocol
@@ -59,9 +58,33 @@ const EventTags = ({ tags }: { tags: string[] }) => {
   )
 }
 
+/**
+ * Generate static params for common event pages
+ */
+export async function generateStaticParams() {
+  try {
+    const BASE_URL = normalizeUrl(process.env.NEXT_PUBLIC_BASE_URL);
+    const response = await fetch(`${BASE_URL}/api/events`, {
+      next: { revalidate: 3600 }
+    });
+    
+    if (!response.ok) {
+      return [];
+    }
+    
+    const data = await response.json();
+    const events = data.events || [];
+    
+    return events.map((event: IEvent) => ({
+      slug: event.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
+
 const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
-  'use cache';
-  cacheLife('hours');
   const { slug } = await params;
 
   try {
@@ -70,7 +93,7 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
 
     // Fetch event data with proper error handling
     const response = await fetch(`${BASE_URL}/api/events/${slug}`, {
-      cache: 'no-store',
+      next: { revalidate: 3600 } // Cache for 1 hour
     });
 
     // Check if response is successful

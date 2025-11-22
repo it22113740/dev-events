@@ -2,15 +2,29 @@
 
 import connectDB from "../mongodb";
 import Event from "@/database/event.model";
-export const getSimilerEventsBySlug = async (slug: string) => {
-    try {
-        await connectDB();
-        const event = await Event.findOne({ slug });
-        if (!event) {
+import { unstable_cache } from "next/cache";
+
+export const getSimilerEventsBySlug = unstable_cache(
+    async (slug: string) => {
+        try {
+            await connectDB();
+            const event = await Event.findOne({ slug });
+            if (!event) {
+                return [];
+            }
+            const similarEvents = await Event.find({ 
+                _id: { $ne: event._id }, 
+                tags: { $in: event.tags } 
+            }).lean();
+            return similarEvents;
+        } catch (error) {
+            console.error('Error fetching similar events:', error);
             return [];
         }
-        return await Event.find({ _id: { $ne: event._id }, tags: { $in: event.tags } }).lean();
-    } catch {
-        return [];
+    },
+    ['similar-events'],
+    {
+        revalidate: 3600, // Cache for 1 hour
+        tags: ['events']
     }
-}
+);
