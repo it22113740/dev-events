@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 const BookEvent = () => {
     const [email, setEmail] = useState("");
     const [submitted, setSubmitted] = useState(false);
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTimeout(() => {
             setSubmitted(true);
