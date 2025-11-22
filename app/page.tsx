@@ -1,15 +1,50 @@
 import EventCard from "@/components/EventCard";
 import ExploreBtn from "@/components/ExploreBtn"
-import { events } from "@/lib/constants";
+import { events as fallbackEvents } from "@/lib/constants";
 import { IEvent } from "@/database/event.model";
 import { cacheLife } from "next/cache";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+/**
+ * Normalize URL to ensure it has a protocol
+ */
+function normalizeUrl(url: string | undefined): string {
+  if (!url) {
+    throw new Error('BASE_URL is not defined');
+  }
+  
+  // If URL already has protocol, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // Add https:// for production URLs
+  return `https://${url}`;
+}
 
 const page = async () => {
   "use cache";
   cacheLife('hours');
-  const events = await fetch(`${BASE_URL}/api/events`).then(res => res.json()).then(data => data.events);
+  
+  let events: IEvent[] = [];
+  
+  try {
+    const BASE_URL = normalizeUrl(process.env.NEXT_PUBLIC_BASE_URL);
+    const response = await fetch(`${BASE_URL}/api/events`, {
+      next: { revalidate: 3600 }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      events = data.events || [];
+    } else {
+      console.error(`Failed to fetch events: ${response.status}`);
+      events = fallbackEvents as IEvent[];
+    }
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    events = fallbackEvents as IEvent[];
+  }
+  
   return (
     <section>
       <h1 className="text-center">Hub for Every Dev <br /> Ever You Can't Miss</h1>

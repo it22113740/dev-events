@@ -5,7 +5,23 @@ import { IEvent } from "@/database/event.model";
 import { getSimilerEventsBySlug } from "@/lib/actions/event.actions";
 import EventCard from "@/components/EventCard";
 import { cacheLife } from "next/cache";
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+/**
+ * Normalize URL to ensure it has a protocol
+ */
+function normalizeUrl(url: string | undefined): string {
+  if (!url) {
+    throw new Error('BASE_URL is not defined');
+  }
+  
+  // If URL already has protocol, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // Add https:// for production URLs
+  return `https://${url}`;
+}
 
 const EventDetailItem = ({ icon, alt, label }: { icon: string, alt: string, label: string }) => {
   return (
@@ -48,13 +64,10 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
   cacheLife('hours');
   const { slug } = await params;
 
-  // Validate BASE_URL is defined
-  if (!BASE_URL || BASE_URL.trim() === '') {
-    console.error('BASE_URL is not defined in environment variables');
-    return notFound();
-  }
-
   try {
+    // Normalize and validate BASE_URL
+    const BASE_URL = normalizeUrl(process.env.NEXT_PUBLIC_BASE_URL);
+
     // Fetch event data with proper error handling
     const response = await fetch(`${BASE_URL}/api/events/${slug}`, {
       cache: 'no-store',
