@@ -1,0 +1,51 @@
+export const events = [
+  {
+    title: "React Conf 2025",
+    image: "/images/event1.png",
+    slug: "react-conf-2025",
+    date: "2025-05-15",
+    time: "09:00",
+    location: "San Francisco, CA",
+  },
+  {
+    title: "Next.js Conf",
+    image: "/images/event2.png",
+    slug: "nextjs-conf-2025",
+    date: "2025-06-20",
+    time: "10:00",
+    location: "San Francisco, CA",
+  },
+  {
+    title: "DevHacks Global",
+    image: "/images/event3.png",
+    slug: "devhacks-global-2025",
+    date: "2025-04-10",
+    time: "08:00",
+    location: "New York, NY",
+  },
+  {
+    title: "AWS re:Invent",
+    image: "/images/event4.png",
+    slug: "aws-reinvent-2025",
+    date: "2025-12-01",
+    time: "08:30",
+    location: "Las Vegas, NV",
+  },
+  {
+    title: "Google I/O",
+    image: "/images/event5.png",
+    slug: "google-io-2025",
+    date: "2025-05-14",
+    time: "10:00",
+    location: "Mountain View, CA",
+  },
+  {
+    title: "TechCrunch Disrupt",
+    image: "/images/event6.png",
+    slug: "techcrunch-disrupt-2025",
+    date: "2025-09-18",
+    time: "09:00",
+    location: "San Francisco, CA",
+  },
+];
+
