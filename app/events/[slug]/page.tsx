@@ -4,6 +4,7 @@ import BookEvent from "@/components/BookEvent";
 import { IEvent } from "@/database/event.model";
 import { getSimilerEventsBySlug } from "@/lib/actions/event.actions";
 import EventCard from "@/components/EventCard";
+import { events as fallbackEvents } from "@/lib/constants";
 
 /**
  * Normalize URL to ensure it has a protocol
@@ -60,6 +61,7 @@ const EventTags = ({ tags }: { tags: string[] }) => {
 
 /**
  * Generate static params for common event pages
+ * Returns at least one static param to satisfy Next.js build requirements
  */
 export async function generateStaticParams() {
   try {
@@ -68,20 +70,25 @@ export async function generateStaticParams() {
       next: { revalidate: 3600 }
     });
     
-    if (!response.ok) {
-      return [];
+    if (response.ok) {
+      const data = await response.json();
+      const events = data.events || [];
+      
+      if (events.length > 0) {
+        return events.map((event: IEvent) => ({
+          slug: event.slug,
+        }));
+      }
     }
-    
-    const data = await response.json();
-    const events = data.events || [];
-    
-    return events.map((event: IEvent) => ({
-      slug: event.slug,
-    }));
   } catch (error) {
     console.error('Error generating static params:', error);
-    return [];
   }
+  
+  // Fallback: Return at least one static param using fallback events
+  // This ensures the build doesn't fail when API is unavailable
+  return fallbackEvents.map((event) => ({
+    slug: event.slug,
+  }));
 }
 
 const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
